@@ -9,5 +9,6 @@ urlpatterns = [
     path('todos/<int:pk>', views.TodoRetrieveUpdateDetroy.as_view()),
     path('todos/<int:pk>/complete', views.TodoToggleComplete.as_view(http_method_names=['put'])),
     path('signup/', views.signup),
+    path('login/', views.login),
 
 ]
