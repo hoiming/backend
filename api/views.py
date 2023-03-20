@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from .serializers import TodoSerializer
+from .serializers import TodoSerializer, TodoToggleCompleteSerializer
 from todo.models import Todo
-from rest_framework import generics
+from rest_framework import generics, permissions
 
 class TodoList(generics.ListAPIView):
     serializer_class = TodoSerializer
@@ -12,6 +12,7 @@ class TodoList(generics.ListAPIView):
 
 class TodoListCreate(generics.ListCreateAPIView):
     serializer_class = TodoSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -19,3 +20,23 @@ class TodoListCreate(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class TodoRetrieveUpdateDetroy(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = TodoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Todo.objects.filter(user=user)
+
+class TodoToggleComplete(generics.UpdateAPIView):
+    serializer_class = TodoToggleCompleteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Todo.objects.filter(user=user)
+
+    def perform_update(self, serializer):
+        serializer.instance.completed = not(serializer.instance.completed)
+        serializer.save()
